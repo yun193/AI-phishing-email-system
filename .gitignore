@@ -1,0 +1,20 @@
+# Python 相關
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# AI 模型與資料集暫存
+models/
+*.pt
+*.bin
+*.h5
+*.csv
+*.xlsx
+data/
+
+# IDE 相關
+.vscode/
+.idea/
+.DS_Store
