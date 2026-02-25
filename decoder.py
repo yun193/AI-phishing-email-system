@@ -8,7 +8,6 @@ class PhishingDecoder:
     負責還原 URL 編碼、Base64 編碼，並清除 HTML 標籤與多餘空白。
     """
     def __init__(self):
-        # 預先編譯正規表示式以提升效能
         # 尋找 URL 編碼 (例如 %20, %3D)
         self.url_enc_pattern = re.compile(r'(?:%[0-9a-fA-F]{2})+')
         
@@ -35,14 +34,14 @@ class PhishingDecoder:
         return text
 
     def _decode_url(self, text: str) -> str:
-        """[內部方法] 尋找並解碼 URL Encoding 字串"""
+        """尋找並解碼 URL Encoding 字串"""
         def replace_url(match):
             # urllib.parse.unquote 負責將 %xx 轉回明文
             return urllib.parse.unquote(match.group(0))
         return self.url_enc_pattern.sub(replace_url, text)
 
     def _decode_base64(self, text: str) -> str:
-        """[內部方法] 透過 Regex 尋找 Base64 特徵並嘗試解碼"""
+        """透過 Regex 尋找 Base64 特徵並嘗試解碼"""
         def replace_b64(match):
             b64_str = match.group(0)
             try:
@@ -58,12 +57,12 @@ class PhishingDecoder:
         return self.base64_pattern.sub(replace_b64, text)
 
     def _clean_html(self, text: str) -> str:
-        """[內部方法] 移除所有 HTML 標籤"""
+        """移除所有 HTML 標籤"""
         # 將標籤替換為空白，避免標籤前後的文字黏在一起 (例如 <p>Hello</p>World -> Hello World)
         return self.html_pattern.sub(' ', text)
 
     def _normalize_spaces(self, text: str) -> str:
-        """[內部方法] 移除多餘空白、換行，並執行 strip()"""
+        """移除多餘空白、換行，並執行 strip()"""
         # \s+ 會匹配一個或多個空白、換行符號 (\n) 或 Tab (\t)
         return re.sub(r'\s+', ' ', text).strip()
 
