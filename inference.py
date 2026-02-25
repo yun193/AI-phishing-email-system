@@ -1,4 +1,4 @@
-import os
+from typing import Dict, Union
 from transformers import pipeline
 
 # 初始化 Hugging Face pipeline，作為分類器
@@ -15,35 +15,46 @@ except Exception as e:
     print(f"Error loading model: {e}")
     classifier = None
 
-def predict(text: str) -> dict:
+# MVP 階段標籤映射：將情緒分析模型的標籤轉換為架構書定義的 Phishing/Safe
+# 待微調模型完成後，模型會直接輸出正確標籤，屆時可移除此映射
+LABEL_MAP = {
+    "NEGATIVE": "Phishing",
+    "POSITIVE": "Safe",
+}
+
+
+def predict(cleaned_text: str) -> Dict[str, Union[str, float]]:
     """
-    接收輸入字串，透過本地的模型進行推論，回傳機率與分類標籤。
-    
+    接收已經過 decoder.py 清洗處理後的標準化明文，透過本地模型進行推論，
+    回傳分類標籤與信心機率。
+
     Args:
-        text (str): 欲測試的文本 (例如經過解碼後的釣魚信件明文)
-        
+        cleaned_text (str): 經過 decoder.py 清洗後的標準化明文
+                            (可能帶有 [EVIL_URL] 等特徵 Token)
+
     Returns:
-        dict: 包含 'label' 與 'probability' 的字典。
-              例如: {"label": "POSITIVE", "probability": 0.98}
+        Dict[str, Union[str, float]]: 包含 'label' 與 'probability' 的字典。
+            例如: {"label": "Phishing", "probability": 0.985}
     """
     if not classifier:
         return {"error": "Classifier pipeline is not initialized."}
-        
-    if not text or not text.strip():
-         return {"error": "Input text cannot be empty."}
+
+    if not cleaned_text or not cleaned_text.strip():
+        return {"error": "Input text cannot be empty."}
 
     # 使用 pipeline 進行推論
     try:
-        results = classifier(text)
-        # pipeline 對於 text-classification 回傳的格式為: [{'label': '...", 'score': 0....}]
+        results = classifier(cleaned_text)
+        # pipeline 對於 text-classification 回傳的格式為: [{'label': '...', 'score': 0....}]
         result = results[0]
-        
+        raw_label = result["label"]
+
         return {
-            "label": result["label"],
+            "label": LABEL_MAP.get(raw_label) or raw_label,
             "probability": round(result["score"], 4)
         }
     except Exception as e:
-         return {"error": f"Inference failed: {e}"}
+        return {"error": f"Inference failed: {e}"}
 
 # Task 1.2 & 1.3 驗收執行區塊
 if __name__ == "__main__":
