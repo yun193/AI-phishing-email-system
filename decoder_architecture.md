@@ -49,14 +49,13 @@ clean_email = decoder.process_text(raw_email)
 
 print(clean_email)
 # 預期輸出: "Click here: [http://bad.com](http://bad.com)"
+```
 
 ---
 
-5. 例外與邊界條件處理 (Error & Edge Case Handling)
+## 5. 例外與邊界條件處理 (Error & Edge Case Handling)
 為確保資料處理過程的穩定性，本模組內建以下防呆與容錯機制：
 
-Base64 假陽性 (False Positives)： 若擷取到的字串符合 Base64 格式，但無法成功解碼為 UTF-8 字串（例如剛好是一串無意義的英數字），模組會攔截例外錯誤，並保留原始字串不作替換。
-
-非字串輸入 (Non-string Inputs)： 讀取資料集時常遇到缺失值，若傳入 process_text 的值並非 str 類型，將直接回傳 ""，避免程式崩潰。
-
-HTML 標籤沾黏問題： 在清除 HTML 標籤時，採取「替換為單一空白」而非直接刪除的策略，防止 <p>Hello</p>World 變成 HelloWorld 導致單字語意遺失。
+* **Base64 假陽性 (False Positives)：** 若擷取到的字串符合 Base64 格式，但無法成功解碼為 UTF-8 字串（例如剛好是一串無意義的英數字），模組會攔截例外錯誤，並保留原始字串不作替換。
+* **非字串輸入 (Non-string Inputs)：** 讀取資料集時常遇到缺失值，若傳入 `process_text` 的值並非 `str` 類型，將直接回傳 `""`，避免程式崩潰。
+* **HTML 標籤沾黏問題：** 在清除 HTML 標籤時，採取「替換為單一空白」而非直接刪除的策略，防止 `<p>Hello</p>World` 變成 `HelloWorld` 導致單字語意遺失。
