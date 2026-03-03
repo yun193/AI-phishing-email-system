@@ -1,0 +1,43 @@
+﻿[DataLoader] Loaded 82,486 rows  |  phishing=42,891  legit=39,595
+[DataLoader] Train: 65,988 rows  |  Test: 16,498 rows
+
+[Model] Starting 5-Fold Cross Validation �K
+
+=======================================================
+  K-Fold CV Results  (k=5)
+=======================================================
+  Accuracy : 0.9812 �� 0.0008
+  F1-Score : 0.9819 �� 0.0007
+  AUC-ROC  : 0.9981 �� 0.0002
+  Precision: 0.9846 �� 0.0017
+  Recall   : 0.9792 �� 0.0007
+=======================================================
+
+[Model] Refitting on full training set �K
+[Model] Training complete.
+
+=======================================================
+  Final Test-Set Evaluation
+=======================================================
+  accuracy    : 0.9829
+  precision   : 0.9874
+  recall      : 0.9796
+  f1          : 0.9835
+  auc_roc     : 0.9982
+=======================================================
+
+Classification Report:
+              precision    recall  f1-score   support
+
+  Legitimate       0.98      0.99      0.98      7919
+    Phishing       0.99      0.98      0.98      8579
+
+    accuracy                           0.98     16498
+   macro avg       0.98      0.98      0.98     16498
+weighted avg       0.98      0.98      0.98     16498
+
+[Evaluator] Confusion matrix saved �� model\confusion_matrix.png
+[Evaluator] ROC curve saved �� model\roc_curve.png
+[Model] Pipeline saved �� model\pipeline.pkl
+
+[Done] Training complete. Model saved to: model/pipeline.pkl
