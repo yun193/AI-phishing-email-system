@@ -2,7 +2,7 @@
 train.py - AI 釣魚郵件偵測系統：模型訓練模組
 
 功能：載入已清洗的 CSV 資料集（支援 .csv.zip）、切分訓練/驗證集、
-使用 TF-IDF + Logistic Regression 進行訓練，產出混淆矩陣視覺化圖表、
+使用 TF-IDF + Random Forest 進行訓練，產出混淆矩陣視覺化圖表、
 效能評估報告，並將模型匯出為 .pkl 檔案。
 
 使用方式 (CLI)：
@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     ConfusionMatrixDisplay,
     classification_report,
@@ -152,13 +152,14 @@ def load_and_split_data(
     return X_train, X_test, y_train, y_test, label2id
 
 
-def build_pipeline(max_features: int = 50000, C: float = 1.0) -> Pipeline:
+def build_pipeline(max_features: int = 50000, n_estimators: int = 200, max_depth: Optional[int] = None) -> Pipeline:
     """
-    建立 TF-IDF + Logistic Regression 的 sklearn Pipeline。
+    建立 TF-IDF + Random Forest 的 sklearn Pipeline。
 
     Args:
         max_features: TF-IDF 最大特徵數
-        C: Logistic Regression 正則化參數
+        n_estimators: Random Forest 決策樹數量
+        max_depth: 決策樹最大深度（None 表示不限制）
 
     Returns:
         sklearn Pipeline 物件
@@ -172,12 +173,12 @@ def build_pipeline(max_features: int = 50000, C: float = 1.0) -> Pipeline:
             min_df=2,                # 至少出現 2 次
             max_df=0.95,             # 排除出現在 95% 以上文件中的詞
         )),
-        ("classifier", LogisticRegression(
-            C=C,
-            max_iter=1000,
+        ("classifier", RandomForestClassifier(
+            n_estimators=n_estimators,
+            max_depth=max_depth,
             random_state=SEED,
-            solver="lbfgs",
             n_jobs=-1,               # 使用所有 CPU 核心
+            class_weight="balanced", # 自動平衡類別權重
         )),
     ])
     return pipeline
@@ -190,7 +191,8 @@ def train_model(
     output_dir: str = DEFAULT_OUTPUT_DIR,
     test_size: float = 0.2,
     max_features: int = 50000,
-    C: float = 1.0,
+    n_estimators: int = 200,
+    max_depth: Optional[int] = None,
 ) -> Tuple[Pipeline, pd.Series, pd.Series, Dict[str, int]]:
     """
     執行完整的模型訓練流程。
@@ -202,7 +204,8 @@ def train_model(
         output_dir: 模型輸出目錄
         test_size: 驗證集佔比
         max_features: TF-IDF 最大特徵數
-        C: Logistic Regression 正則化參數
+        n_estimators: Random Forest 決策樹數量
+        max_depth: 決策樹最大深度（None 表示不限制）
 
     Returns:
         (pipeline, X_test, y_test, label2id) - 可供後續評估使用
@@ -215,11 +218,12 @@ def train_model(
     )
 
     # 2. 建立並訓練 Pipeline
-    print(f"\n🤖 建立模型：TF-IDF + Logistic Regression")
+    print(f"\n🤖 建立模型：TF-IDF + Random Forest")
     print(f"  ├── TF-IDF max_features: {max_features}")
-    print(f"  └── LogisticRegression C: {C}")
+    print(f"  ├── n_estimators: {n_estimators}")
+    print(f"  └── max_depth: {max_depth}")
 
-    pipeline = build_pipeline(max_features=max_features, C=C)
+    pipeline = build_pipeline(max_features=max_features, n_estimators=n_estimators, max_depth=max_depth)
 
     print(f"\n🚀 開始訓練...")
     print("=" * 60)
@@ -316,7 +320,7 @@ def evaluate_model(
         "confusion_matrix": cm.tolist(),
         "display_labels": display_labels,
         "eval_samples": len(labels),
-        "model_type": "TF-IDF + Logistic Regression",
+        "model_type": "TF-IDF + Random Forest",
     }
 
     if is_binary:
@@ -329,7 +333,7 @@ def evaluate_model(
     print("\n" + "=" * 50)
     print("📋 效能評估報告 (Evaluation Report)")
     print("=" * 50)
-    print(f"  模型類型   : TF-IDF + Logistic Regression")
+    print(f"  模型類型   : TF-IDF + Random Forest")
     print(f"  F1-Score   : {f1}")
     print(f"  Precision  : {precision}")
     print(f"  Recall     : {recall}")
@@ -360,7 +364,7 @@ def evaluate_model(
 def parse_args() -> argparse.Namespace:
     """解析命令列參數"""
     parser = argparse.ArgumentParser(
-        description="AI 釣魚郵件偵測系統 - 模型訓練腳本（TF-IDF + Logistic Regression）",
+        description="AI 釣魚郵件偵測系統 - 模型訓練腳本（TF-IDF + Random Forest）",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -388,8 +392,12 @@ def parse_args() -> argparse.Namespace:
         help="TF-IDF 最大特徵數",
     )
     parser.add_argument(
-        "--C", type=float, default=1.0,
-        help="Logistic Regression 正則化參數（值越大正則化越弱）",
+        "--n_estimators", type=int, default=200,
+        help="Random Forest 決策樹數量",
+    )
+    parser.add_argument(
+        "--max_depth", type=int, default=None,
+        help="決策樹最大深度（預設不限制）",
     )
     return parser.parse_args()
 
@@ -400,11 +408,12 @@ if __name__ == "__main__":
 
     print("🛡️  AI 釣魚郵件偵測系統 - 模型訓練")
     print("=" * 60)
-    print(f"  模型架構   : TF-IDF + Logistic Regression")
+    print(f"  模型架構   : TF-IDF + Random Forest")
     print(f"  資料集     : {args.data_path}")
     print(f"  輸出目錄   : {args.output_dir}")
     print(f"  Max Features: {args.max_features}")
-    print(f"  C (正則化)  : {args.C}")
+    print(f"  n_estimators: {args.n_estimators}")
+    print(f"  max_depth   : {args.max_depth}")
     print(f"  Test Size   : {args.test_size}")
     print("=" * 60)
 
@@ -416,7 +425,8 @@ if __name__ == "__main__":
         output_dir=args.output_dir,
         test_size=args.test_size,
         max_features=args.max_features,
-        C=args.C,
+        n_estimators=args.n_estimators,
+        max_depth=args.max_depth,
     )
 
     # 執行評估

@@ -1,7 +1,7 @@
 """
 inference.py - AI 釣魚郵件偵測系統：AI 推論模組
 
-功能：接收標準化明文，透過已訓練的 TF-IDF + Logistic Regression 模型進行推論，
+功能：接收標準化明文，透過已訓練的 TF-IDF + Random Forest 模型進行推論，
 回傳分類標籤與信心機率。
 
 使用方式：
