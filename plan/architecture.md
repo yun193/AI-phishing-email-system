@@ -45,7 +45,7 @@ for log in logs:
 
 ### 2.2 AI 推論模組 (`inference.py`)
 
-- **功能描述**：接收標準化明文，並透過微調後的 Transformer 模型進行語意分析與威脅評估。
+- **功能描述**：接收標準化明文，並透過已訓練的 TF-IDF + Logistic Regression 模型進行分類與威脅評估。
 - **介面名稱**：`predict(cleaned_text: str) -> Dict[str, Union[str, float]]`
 - **參數**：
   - `cleaned_text` (String)：已經過 `decoder.py` 清洗處理後的標準化明文（可能帶有 Token）。
@@ -63,6 +63,72 @@ result = predict(cleaned_input)
 
 print(result)
 # Output: {"label": "Phishing", "probability": 0.985}
+# 注意：模型需先透過 train.py 訓練並產出 model.pkl 後才能使用
+```
+
+### 2.3 模型訓練模組 (`train.py`)
+
+- **功能描述**：負責載入已清洗的資料集（支援 `.csv` 與 `.csv.zip`）、切分訓練/驗證集、使用 TF-IDF + Logistic Regression 進行訓練，並產出效能評估報告、混淆矩陣視覺化圖表，以及匯出 `.pkl` 模型檔案。此模組為離線腳本，不參與線上推論流程。
+- **執行方式**：CLI 腳本（透過命令列執行，非函式匯入）
+- **命令列介面**：
+  ```
+  python train.py --data_path <CSV路徑> --text_col <文本欄位名> --label_col <標籤欄位名> \
+                  --output_dir <模型輸出目錄> --test_size <驗證集比例> \
+                  --max_features <TF-IDF最大特徵數> --C <正則化參數>
+  ```
+- **參數說明**：
+  | 參數 | 類型 | 預設值 | 說明 |
+  |------|------|--------|------|
+  | `--data_path` | String | （必填） | 已清洗的 CSV 資料集路徑（支援 .csv 或 .csv.zip） |
+  | `--text_col` | String | `text` | CSV 中文本欄位的名稱 |
+  | `--label_col` | String | `label` | CSV 中標籤欄位的名稱 |
+  | `--output_dir` | String | `./models` | 模型與報告的儲存目錄 |
+  | `--test_size` | Float | `0.2` | 驗證集佔比 (8:2 切分) |
+  | `--max_features` | Int | `50000` | TF-IDF 最大特徵數 |
+  | `--C` | Float | `1.0` | Logistic Regression 正則化參數 |
+- **輸出產物**：
+  1. **模型檔案**：`<output_dir>/model.pkl`（包含 TF-IDF + Logistic Regression 的完整 Pipeline）。
+  2. **標籤映射**：`<output_dir>/label_map.json`。
+  3. **混淆矩陣圖**：`<output_dir>/confusion_matrix.png`。
+  4. **評估報告**：印出至終端機並儲存為 `<output_dir>/eval_report.json`，包含：
+     - F1-Score, Precision, Recall
+     - False Positive Rate (FPR)
+     - Confusion Matrix
+
+**✅ 調用範例 (CLI)**：
+```bash
+# 使用預設超參數進行訓練（支援 .csv.zip）
+python train.py --data_path ./Dataset/all_phishing_email_dataset.csv.zip --text_col text_combined --label_col label
+
+# 自訂超參數
+python train.py --data_path ./Dataset/all_phishing_email_dataset.csv.zip \
+                --text_col text_combined --label_col label \
+                --output_dir ./models/v2 \
+                --max_features 80000 --C 0.5
+```
+
+**✅ 調用範例 (Python 模組匯入)**：
+```python
+from train import train_model, evaluate_model
+
+# 執行訓練
+pipeline, X_test, y_test, label2id = train_model(
+    data_path="./Dataset/all_phishing_email_dataset.csv.zip",
+    text_col="text_combined",
+    label_col="label",
+    output_dir="./models",
+)
+
+# 執行評估
+metrics = evaluate_model(pipeline, X_test, y_test, label2id)
+print(metrics)
+# Output: {
+#   "f1": 0.953,
+#   "precision": 0.961,
+#   "recall": 0.945,
+#   "fpr": 0.032,
+#   "confusion_matrix": [[480, 16], [22, 382]]
+# }
 ```
 
 ---
@@ -93,19 +159,37 @@ print(result)
 
 ### 3.3 AI 推論層 (AI Inference Layer)
 - **檔案/模組**：`inference.py`
-- **技術棧**：Hugging Face `transformers`, `torch`
+- **技術棧**：`scikit-learn`, `joblib`
 - **輸入 (Input)**：來自 `decoder.py` 處理完的乾淨明文 (Cleaned Text)。
 - **輸出 (Output)**：分類標籤 (如 `Phishing`, `Safe`) 與信心機率 (Probability)。
 - **職責與實作要求**：
-  1. **模型載入與封裝**：載入微調後的語言模型（如基於 `distilbert-base-uncased` 微調的版本），並封裝為單一介面 `predict(text)` 供前端呼叫。
-  2. **語意分析**：針對輸入文本的上下文與特殊的惡意 Token 進行推論。
-  3. **效能要求**：推論過程需輕量化，確保在 CPU 環境（無 GPU）下也能提供秒級回應。
+  1. **模型載入與封裝**：使用 `joblib.load()` 載入 `model.pkl`（TF-IDF + Logistic Regression Pipeline），並封裝為單一介面 `predict(text)` 供前端呼叫。
+  2. **文本分類**：透過 TF-IDF 向量化後，使用 Logistic Regression 對文本進行分類推論。
+  3. **效能要求**：推論過程極為輕量，在 CPU 環境下可達毫秒級回應。
 
-### 3.4 模型訓練與測試驗證層 (Training & Red Teaming Layer)
-- **檔案/模組**：`train.py`, `test_payloads.txt`, `Adversarial_Testing_Report.md`
+### 3.4 模型訓練層 (Training Layer)
+- **檔案/模組**：`train.py`
+- **技術棧**：`scikit-learn`, `pandas`, `matplotlib`, `joblib`
+- **輸入 (Input)**：
+  1. 已透過 `decoder.py` 清洗並遞迴解碼過的 CSV 資料集（支援 `.csv` 與 `.csv.zip`，如 Kaggle Phishing Email Dataset）。
+  2. 命令列超參數（TF-IDF max_features、Logistic Regression C 等）。
+- **輸出 (Output)**：
+  1. 訓練完成的模型 `.pkl` 檔案（存放於 `models/` 目錄）。
+  2. 混淆矩陣視覺化圖 `confusion_matrix.png`。
+  3. 效能評估報告 `eval_report.json`（含 F1, Precision, Recall, FPR, Confusion Matrix）。
+  4. 標籤映射 `label_map.json`。
 - **職責與實作要求**：
-  1. **離線訓練 (`train.py`)**：使用清洗並遞迴解碼過的 Kaggle 資料集（如 Enron）對基礎模型進行 Fine-Tuning。需產出 F1-Score, Precision, Recall 及 False Positive Rate (FPR) 評估報告。
-  2. **AI 紅隊演練 (Red Teaming)**：建構進階對抗樣本（同形異義字、零寬度字元、干擾詞稀釋）對 Inference 引擎進行壓力測試，並記錄繞過成功的 Payload 以作為下一代模型改進依據。
+  1. **資料載入與切分**：讀取 CSV 檔案（自動解壓 ZIP），按 8:2 比例切分為訓練集與驗證集，並支援可配置的欄位名稱。
+  2. **TF-IDF 向量化**：使用 `TfidfVectorizer` 將文本轉為 TF-IDF 特徵向量（Unigram + Bigram）。
+  3. **模型訓練**：使用 `LogisticRegression` 對 TF-IDF 特徵進行二分類訓練。
+  4. **多維度效能評估**：計算 F1-Score, Precision, Recall，以及 **False Positive Rate (FPR)**，並產出混淆矩陣視覺化圖，確保正常郵件不被誤判。
+  5. **模型儲存**：使用 `joblib.dump()` 將完整 Pipeline（含 TF-IDF + 模型）儲存為 `.pkl` 檔案，格式需與 `inference.py` 的載入邏輯相容。
+  6. **可重現性**：設定隨機種子，確保訓練結果可重現。
+
+### 3.5 測試驗證與紅隊演練層 (Red Teaming Layer)
+- **檔案/模組**：`test_payloads.txt`, `Adversarial_Testing_Report.md`
+- **職責與實作要求**：
+  1. **AI 紅隊演練 (Red Teaming)**：建構進階對抗樣本（同形異義字、零寬度字元、干擾詞稀釋）對 Inference 引擎進行壓力測試，並記錄繞過成功的 Payload 以作為下一代模型改進依據。
 
 ---
 
