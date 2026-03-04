@@ -1,0 +1,23 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.3.4, pluggy-1.5.0 -- C:\Users\user\anaconda3\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\user\Project\AI-phishing-email-system\AI-phishing-email-system\random_forest_model
+plugins: anyio-4.7.0
+collecting ... collected 14 items
+
+tests/test_model.py::test_build_pipeline PASSED                          [  7%]
+tests/test_model.py::test_pipeline_fit_predict PASSED                    [ 14%]
+tests/test_model.py::test_train_with_kfold PASSED                        [ 21%]
+tests/test_model.py::test_save_load PASSED                               [ 28%]
+tests/test_predictor.py::test_predict_format PASSED                      [ 35%]
+tests/test_predictor.py::test_predict_probabilities_sum_to_one PASSED    [ 42%]
+tests/test_predictor.py::test_predict_batch PASSED                       [ 50%]
+tests/test_predictor.py::test_predict_empty_raises PASSED                [ 57%]
+tests/test_predictor.py::test_predict_model_not_found PASSED             [ 64%]
+tests/test_preprocessor.py::test_clean_text_lowercase PASSED             [ 71%]
+tests/test_preprocessor.py::test_clean_text_removes_html PASSED          [ 78%]
+tests/test_preprocessor.py::test_clean_text_removes_urls PASSED          [ 85%]
+tests/test_preprocessor.py::test_preprocessor_is_sklearn_compatible PASSED [ 92%]
+tests/test_preprocessor.py::test_preprocessor_empty_string PASSED        [100%]
+
+============================= 14 passed in 5.43s ==============================

@@ -1,0 +1,59 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.3.4, pluggy-1.5.0 -- C:\Users\user\anaconda3\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\user\Project\AI-phishing-email-system\AI-phishing-email-system\random_forest_model
+plugins: anyio-4.7.0
+collecting ... collected 36 items
+
+tests/test_robustness.py::test_empty_string_raises PASSED
+tests/test_robustness.py::test_whitespace_only_raises PASSED
+tests/test_robustness.py::test_very_short_text_returns_low_warning PASSED
+tests/test_robustness.py::test_very_long_text_does_not_crash PASSED
+tests/test_robustness.py::test_single_word_text PASSED
+tests/test_robustness.py::test_newlines_and_tabs PASSED
+tests/test_robustness.py::test_html_tags_do_not_crash PASSED
+tests/test_robustness.py::test_unicode_characters PASSED
+tests/test_robustness.py::test_emoji_in_text PASSED
+tests/test_robustness.py::test_only_numbers_and_symbols PASSED
+tests/test_robustness.py::test_null_bytes_in_text PASSED
+tests/test_robustness.py::test_repeated_punctuation PASSED
+tests/test_robustness.py::test_leet_speak_phishing PASSED
+tests/test_robustness.py::test_zero_width_spaces PASSED
+tests/test_robustness.py::test_excessive_whitespace_obfuscation PASSED
+tests/test_robustness.py::test_homoglyph_attack PASSED
+tests/test_robustness.py::test_mixed_case_obfuscation PASSED
+tests/test_robustness.py::test_label_is_valid PASSED
+tests/test_robustness.py::test_probabilities_sum_to_one PASSED
+tests/test_robustness.py::test_confidence_equals_max_probability PASSED
+tests/test_robustness.py::test_warning_level_thresholds PASSED
+tests/test_robustness.py::test_all_required_keys_present PASSED
+tests/test_robustness.py::test_confidence_in_zero_one_range PASSED
+tests/test_robustness.py::test_same_input_same_output PASSED
+tests/test_robustness.py::test_batch_same_as_sequential PASSED
+tests/test_robustness.py::test_model_predicts_both_classes PASSED
+tests/test_robustness.py::test_phishing_recall_on_known_samples PASSED
+tests/test_robustness.py::test_legit_precision_on_known_samples PASSED
+tests/test_robustness.py::test_real_world_sample[Your account is suspended! Verify your identity now: http://verify-account.ru-phishing] PASSED
+tests/test_robustness.py::test_real_world_sample[You've won a $1000 Amazon gift card! Click here to claim your reward.-phishing] PASSED
+tests/test_robustness.py::test_real_world_sample[URGENT: Unusual sign-in activity detected. Confirm your password immediately.-phishing] PASSED
+tests/test_robustness.py::test_real_world_sample[Hi Sarah, here are the slides from today's presentation. Let me know if you have questions.-legitimate] PASSED
+tests/test_robustness.py::test_real_world_sample[Your order #98234 has shipped via FedEx. Tracking: 1234567890.-legitimate] FAILED
+tests/test_robustness.py::test_single_predict_latency PASSED
+tests/test_robustness.py::test_batch_100_latency PASSED
+tests/test_robustness.py::test_throughput_report 
+  [Throughput] 100 emails in 3.01s = 33 emails/sec
+PASSED
+
+================================== FAILURES ===================================
+_ test_real_world_sample[Your order #98234 has shipped via FedEx. Tracking: 1234567890.-legitimate] _
+tests\test_robustness.py:357: in test_real_world_sample
+    assert result["label"] == expected_label, (
+E   AssertionError: Expected 'legitimate', got 'phishing' (confidence=95.35%) for:
+E       'Your order #98234 has shipped via FedEx. Tracking: 1234567890.'
+E   assert 'phishing' == 'legitimate'
+E     
+E     - legitimate
+E     + phishing
+=========================== short test summary info ===========================
+FAILED tests/test_robustness.py::test_real_world_sample[Your order #98234 has shipped via FedEx. Tracking: 1234567890.-legitimate]
+======================== 1 failed, 35 passed in 10.28s ========================
