@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 venv/
 .env
+.conda/
 
 # AI 模型與資料集暫存
 models/
