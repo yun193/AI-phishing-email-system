@@ -19,36 +19,57 @@ import numpy as np
 
 # ─── 模型路徑設定 ───────────────────────────────────────────────
 # 預設模型路徑，可透過環境變數 MODEL_DIR 覆蓋
-MODEL_DIR = os.environ.get("MODEL_DIR", "./models")
-MODEL_PATH = os.path.join(MODEL_DIR, "model.pkl")
-LABEL_MAP_PATH = os.path.join(MODEL_DIR, "label_map.json")
+# 任務 1: 修改模型載入路徑為 pipeline.pkl
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "models", "pipeline.pkl")
+if not os.path.exists(MODEL_PATH):
+    MODEL_PATH = os.path.join(os.path.dirname(__file__), "models", "model.pkl")
+    
+LABEL_MAP_PATH = os.path.join(os.path.dirname(__file__), "models", "label_map.json")
 
 # ─── 載入模型 ───────────────────────────────────────────────────
 classifier = None
 label_map: Dict[str, int] = {}
 id2label: Dict[int, str] = {}
 
-try:
-    if os.path.exists(MODEL_PATH):
-        classifier = joblib.load(MODEL_PATH)
-        print(f"✅ 模型已載入：{MODEL_PATH}")
+def load_model_file(path: str):
+    """嘗試載入指定的模型檔案"""
+    if os.path.exists(path):
+        try:
+            model = joblib.load(path)
+            print(f"✅ 模型分析成功載入：{path}")
+            return model
+        except Exception as e:
+            print(f"⚠️  載入模型檔案失敗 ({path}): {e}")
+            return None
+    return None
 
-        # 載入標籤映射
-        if os.path.exists(LABEL_MAP_PATH):
+# 階段性嘗試載入模型
+# 1. 嘗試 pipeline.pkl
+classifier = load_model_file(MODEL_PATH)
+
+# 2. 如果失敗且目前路徑是 pipeline.pkl，嘗試 model.pkl
+if classifier is None:
+    fallback_path = os.path.join(os.path.dirname(__file__), "models", "model.pkl")
+    if MODEL_PATH != fallback_path:
+        print(f"🔄 正在嘗試回退至備選模型：{fallback_path}")
+        classifier = load_model_file(fallback_path)
+
+if classifier is not None:
+    # 載入標籤映射
+    if os.path.exists(LABEL_MAP_PATH):
+        try:
             with open(LABEL_MAP_PATH, "r", encoding="utf-8") as f:
                 label_map = json.load(f)
             id2label = {v: k for k, v in label_map.items()}
             print(f"🏷️  標籤映射：{label_map}")
-        else:
-            # 預設映射
+        except Exception as e:
+            print(f"⚠️  載入標籤映射失敗：{e}")
             id2label = {0: "Safe", 1: "Phishing"}
-            print(f"⚠️  未找到標籤映射檔，使用預設：{id2label}")
     else:
-        print(f"⚠️  模型檔案不存在：{MODEL_PATH}")
-        print(f"   請先執行 train.py 訓練模型。")
-except Exception as e:
-    print(f"❌ 載入模型失敗：{e}")
-    classifier = None
+        id2label = {0: "Safe", 1: "Phishing"}
+        print(f"⚠️  未找到標籤映射檔，使用預設：{id2label}")
+else:
+    print(f"❌ 嚴重錯誤：無法載入任何有效的模型檔案。請確認 models/ 目錄完整性並運行 train.py。")
 
 
 def predict(cleaned_text: str) -> Dict[str, Union[str, float]]:

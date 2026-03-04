@@ -1,0 +1,20 @@
+1. [Phishing] Urgent: Your account password is set to expire today. Click here to reset: http://secure-login.com
+2. [Phishing] Dear user, we’ve detected a login attempt from a new device. If this wasn't you, confirm here: http://social-verify.net
+3. [Phishing] HR Policy Update: Please review and sign the attached document. [FILE: Policy_Update.docm]
+4. [Phishing] Your Microsoft Office 365 subscription has several issues. Log in to fix: http://micros0ft-teams.net
+5. [Phishing] PayPal Alert: Unexpected charge of $499.00. If you didn't authorize this, call us at +1-800-FAKE-PAY
+6. [Phishing] IRS Refund: You are eligible for a tax refund of $1,200. Claim now: http://irs-gov-refund.org
+7. [Phishing] UPS: We tried to deliver your package, but there's an issue. Pay redelivery fee: http://ups-tracking-info.com
+8. [Phishing] Congratulations! You’ve won a $500 Amazon gift card. Click to claim: http://amazon-rewards.top
+9. [Phishing] Someone shared a file "Financial_Report_2025.pdf" with you on Dropbox. View here: http://dropbox-viewer.xyz
+10. [Phishing] CommBank: Your rewards points are expiring. Redeem them now: http://commbank-awards.cc
+11. [Phishing] Netflix: Your payment method was declined. Update your billing info: http://netflix-billing.com
+12. [Phishing] Facebook: Multiple login attempts detected in London, UK. Secure your account: http://facebook-logon.net
+13. [Phishing] Google: Your storage is full. Buy more space to continue receiving emails: http://google-storage-offer.me
+14. [Phishing] Zoom: You missed a scheduled meeting. Click for transcript: http://zoom-recordings.co
+15. [Phishing] LinkedIn: You have 5 new profile views. See who's looking: http://linkedin-stats.pro
+16. [Phishing] Spotify: Premium subscription cancelled. Re-activate for $0.99 for 3 months: http://spotify-promo.site
+17. [Phishing] BitCoin: Your wallet has a pending transaction of 0.5 BTC. Confirm: http://blockchain-wallet.info
+18. [Phishing] Apple: Find My iPhone has been disabled on your device. Reactivate: http://apple-id-verify.com
+19. [Phishing] DHL: Your shipment is on hold due to missing address info. Update: http://dhl-express-logistics.com
+20. [Phishing] Bank of America: Your online banking access is restricted. Unlock: http://boa-secure-verification.com

@@ -1,0 +1,20 @@
+1. [Safe] Meeting reminder for tomorrow at 3pm in the conference room.
+2. [Safe] Hi Mom, I'll be home for dinner at 6:30. Love you!
+3. [Safe] Your lunch order from Joe's Pizza is ready for pickup. Urgent!
+4. [Safe] Invoice #12345 for your recent purchase at Best Buy.
+5. [Safe] Newsletter: The latest updates in AI technology for March 2026.
+6. [Phishing] Hacking attempt detected! Your account is 100% compromised. Click here now for help!!!!! http://scam-help.com
+7. [Safe] Just checking in to see how your project is going. Let me know if you need help.
+8. [Phishing] 𝕌ℝ𝔾𝔼ℕ𝕋: 𝕐𝕠𝕦𝕣 𝕒𝕔𝕔𝕠𝕦𝕟𝕥 𝕙𝕒𝕤 𝕓𝕖𝕖𝕟 𝕝𝕠𝕔𝕜𝕖𝕕. ℂ𝕝𝕚𝕔𝕜 𝕙𝕖𝕣𝕖: http://hacker.com
+9. [Safe] [SUBJECT] Test email - please ignore.
+10. [Safe] How to bake a chocolate cake in 10 easy steps.
+11. [Phishing] Subject: Win a Free iPhone 16! Body: Click here to win: http://win-iphone.xyz
+12. [Safe] Your library books are overdue. Please return them as soon as possible.
+13. [Phishing] RE: RE: RE: Payment Confirmation needed ASAP!!! http://fake-payment.com
+14. [Safe] Appointment confirmation for your dentist visit on Monday at 10 AM.
+15. [Safe] Happy Birthday! Wishing you a great day and a fantastic year ahead!
+16. [Phishing] System Administrator: Your mailbox is almost full. Increase limit: http://mail-admin-tools.com
+17. [Safe] Please find the attached report for the Q1 2026 financial status.
+18. [Phishing] ALERT: Action required on your Amazon account. Verify now: http://amaz0n-security-portal.com
+19. [Safe] New message from LinkedIn: "Happy work anniversary!"
+20. [Phishing] Important: Security patch for your Windows PC. Download here: http://windows-update-now.net
