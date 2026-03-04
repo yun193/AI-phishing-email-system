@@ -5,9 +5,18 @@ import re
 
 def load_modules():
     """載入所需的模組，並將錯誤捕獲以符合安全與不猜測原則"""
+    import os
+    model_path = os.path.join("models", "model.pkl")
+    
+    # 任務 1: 顯式檢查 model.pkl 檔案是否存在
+    if not os.path.exists(model_path):
+        st.error(f"❌ 關鍵錯誤：找不到模型檔案 `{model_path}`。系統無法執行推論。")
+        return None, None
+
     try:
         from decoder import PhishingDecoder
         from inference import predict
+        st.sidebar.success("✅ AI 模型運作中 (Model Active)")
         return PhishingDecoder, predict
     except Exception as e:
         error_msg = f"無法載入核心模組: {str(e)}\n\n{traceback.format_exc()}"
@@ -72,11 +81,11 @@ def render_batch_report(payloads: list, decoder, predict):
     progress_bar = st.progress(0)
     
     for idx, payload in enumerate(payloads, 1):
-        # 防護：超過 5000 字元
-        if len(payload) > 5000:
+        # 任務 3: 修改上傳限制 (增加至 20000 字元)
+        if len(payload) > 20000:
             results.append({
                 "ID": idx,
-                "Prediction": "Error (Length > 5000)",
+                "Prediction": "Error (Length > 20000)",
                 "Probability": "-",
                 "Raw Snippet": payload[:50] + "...",
                 "Cleaned Snippet": "-"
@@ -158,13 +167,13 @@ def main():
     # --- Tab 1: 單筆分析 ---
     with tab1:
         payload = st.text_area("輸入郵件文本 (Raw Email Text)", height=250, 
-                               help="請貼上包含可疑連結、Base64 或 HTML 標籤的內容。最大限制 5000 字元。")
+                               help="請貼上包含可疑連結、Base64 或 HTML 標籤的內容。最大限制 20000 字元。")
         
         if st.button("🚀 開始分析 (Analyze)", type="primary"):
             if not payload or not payload.strip():
                 st.warning("請輸入有效的郵件文本。")
-            elif len(payload) > 5000:
-                st.error(f"錯誤：輸入文本超過長度上限 (目前長度: {len(payload)} 字元，上限: 5000 字元)。系統已阻斷該請求。")
+            elif len(payload) > 20000:
+                st.error(f"錯誤：輸入文本超過長度上限 (目前長度: {len(payload)} 字元，上限: 20000 字元)。系統已阻斷該請求。")
             else:
                 with st.spinner("系統正在進行深度解碼與威脅推論..."):
                     try:

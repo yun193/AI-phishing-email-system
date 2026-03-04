@@ -1,0 +1,154 @@
+1. [正常] 簡單的一般會議通知
+Subject: Q3 Planning Meeting
+Hi team, please review the attached meeting minutes of our Q3 planning. Best regards.
+
+2. [釣魚 - Base64] 隱藏的惡意網址
+URGENT: Your account will be suspended in 24 hours. Click here to verify: aHR0cDovL2V2aWwuY29tL2xvZ2lu
+
+3. [釣魚 - URL Encoding] 混淆的收件資料查證
+Dear Customer, your package delivery failed. Please confirm your details at: http://post-service.com/update%3Fuser%3Dadmin%26token%3D12345
+
+4. [正常 - HTML] 電子報訂閱確認
+<html><body><h2>Welcome to our Newsletter!</h2><p>Thank you for subscribing.</p><br><a href="http://legit-news.com/unsubscribe">Unsubscribe here</a></body></html>
+
+5. [釣魚 - HTML + Base64 混淆] 複雜的銀行釣魚
+<p>Dear Bank User, your password has expired.</p><br><b>Click the secure link:</b> <a href="http://secure-update.com">aHR0cDovL2JhZC1oYWNrZXIubmV0</a>
+
+6. [邊界測試 - 空白轟炸] 大量空白與換行
+Hello     there.
+                              Please     check         this.
+
+                              
+Thanks.
+
+7. [邊界測試 - 遞迴/多次編碼] (模擬 Base64 內還有惡意特徵)
+Click here to claim your prize: aHR0cHM6Ly9mYWtlLXByaXplLmNvbS8lM0ZpZCUzRDEyMw==
+
+8. [釣魚 - 情緒勒索型] 無連結但具備強烈釣魚特徵
+IF YOU DO NOT RESPOND WITHIN 2 HOURS YOUR ACCOUNT WILL BE PERMANENTLY DELETED.
+
+9. [邊界測試 - 極短字元] 
+Hi.
+
+10. [邊界測試 - 假陽性 Base64] 長度剛好符合但其實是一般英數字串
+Here is the product code you ordered: AABBCcDd12345678== 
+
+11. [正常] 專案進度更新
+Hi Mark, the project is moving along as expected. We should reach the milestone by next Tuesday.
+
+12. [釣魚] 蘋果帳戶安全性警報
+Your Apple ID was used to sign in to a new device. If this wasn't you, reset your password: http://apple-secure-verify.com
+
+13. [正常] 週末聚餐邀請
+Hey everyone, we're planning a dinner this Friday at 7 PM. Let me know if you can make it!
+
+14. [釣魚] 銀行帳戶異常活動
+Warning: Unusual activity detected on your account. Access is restricted. Verify identity now: http://mybank-alert-login.net
+
+15. [正常] 訂單確認通知
+Thank you for your order #88492. We will notify you when it ships.
+
+16. [釣魚] 贏得免付費禮物卡
+Congratulations! You have been selected to receive a free $1,000 Amazon Gift Card. Claim here: http://free-gift-win.xyz
+
+17. [正常] 履歷投遞回覆
+Dear Applicant, thank you for your interest in the position. We have received your application.
+
+18. [釣魚] 國稅局退稅通知
+Your annual tax refund is ready for collection. Total amount: $1,420. Complete the form: http://irs-refund-portal.org
+
+19. [正常] 系統維護公告
+Our servers will be down for maintenance this Sunday from 2 AM to 4 AM UTC.
+
+20. [釣魚] Netflix 會員效期提醒
+Your membership has expired. To continue watching, please update your payment method: http://netflix-billing-fix.co
+
+21. [正常] 健身房會籍續約
+Your gym membership is up for renewal next month. Click here to see our new loyalty rates.
+
+22. [釣魚] 領取加密貨幣空投
+Exclusive Airdrop! Claim your free 500 USDT tokens today by connecting your wallet: http://crypto-airdrop-claim.site
+
+23. [正常] 會議紀錄分享
+Attached are the notes from today's brainstorming session. Please feel free to add comments.
+
+24. [釣魚] 密碼變更確認
+Your account password was recently changed. If you did not make this change, secure your account: http://account-security-reset.info
+
+25. [正常] 訂閱電子報
+Stay updated with our latest blog posts. You can manage your preferences at any time.
+
+26. [釣魚] PayPal 交易爭議
+A dispute has been opened regarding your recent transaction. Review the details: http://paypal-resolution-center.com
+
+27. [正常] 租屋詢問回覆
+Hi, is the apartment still available? I would like to schedule a viewing for this weekend.
+
+28. [釣魚] Microsoft 365 續訂失敗
+Your subscription failed to renew. Access to your files will be restricted soon: http://office365-billing-web.ms
+
+29. [正常] 機票行程確認
+Your flight to Tokyo is confirmed. Please find your e-ticket and check-in details attached.
+
+30. [釣魚] 獲得限量折扣券
+Get 90% off all items! This offer is valid for the next 4 hours only: http://flash-sale-deal.top
+
+31. [正常] 軟體更新通知
+A new version of our app is available for download. Check out the latest features and fixes.
+
+32. [釣魚] Facebook 登入異常
+Someone recently tried to log in to your Facebook account from a different location. Verify here: http://fb-login-security.net
+
+33. [正常] 圖書館逾期提醒
+The book "The Great Gatsby" is overdue. Please return it as soon as possible to avoid fines.
+
+34. [釣魚] UPS 包裹攔截
+Your package has been intercepted due to incorrect address. Pay the shipping fee to release: http://ups-parcel-verify.biz
+
+35. [正常] 社群活動邀請
+Join us for our monthly board game night! All experience levels are welcome.
+
+36. [釣魚] Steam 帳號停權警告
+Your Steam account has been flagged for suspicious activity. Contact support immediately: http://steam-community-verify.top
+
+37. [正常] 信用卡帳單已產生
+Your monthly credit card statement is now available online. Please review your transactions.
+
+38. [釣魚] 虛擬資產帳戶變動
+Suspicious login from Russia detected on your Binance account. Lock account: http://binance-security-lock.io
+
+39. [正常] 體檢結果通知
+Your blood test results are ready. Please log in to the patient portal to view them.
+
+40. [釣魚] 航空公司里程獎勵
+You have 50,000 unclaimed miles that will expire in 24 hours. Redeem them now: http://delta-miles-claim.org
+
+41. [正常] 辦公室清潔公告
+The office will be professionally cleaned this evening. Please ensure all personal items are cleared.
+
+42. [釣魚] Instagram 帳號驗證
+Congratulations! Your account is eligible for a blue verification badge. Apply now: http://ig-verify-badge.co
+
+43. [正常] 教授課程講義
+Attached are the slides for tomorrow's lecture on Machine Learning algorithms.
+
+44. [釣魚] Dropbox 檔案分享
+A user has shared a sensitive document with you. Secure login required to view: http://dropbox-secure-transfer.net
+
+45. [正常] 獸醫診所預約提醒
+This is a reminder for Buster's check-up tomorrow at 10:30 AM.
+
+46. [釣魚] 領薪通知異常
+Your payroll direct deposit has been returned. Please update your banking info: http://payroll-portal-update.com
+
+47. [正常] 快遞櫃取件碼
+Your package has been delivered to Locker #42. Use code 55928 to retrieve it.
+
+48. [釣魚] Coinbase 帳戶暫停
+Due to a violation of our terms, your account has been temporarily suspended. Appeal here: http://coinbase-appeal.site
+
+49. [正常] 求職面試邀請
+We would like to invite you for an interview. Please let us know your availability for next week.
+
+50. [釣魚] 惡意二維碼掃描
+Scan this QR code to claim your free reward from Starbucks: http://starbucks-free-reward.xyz/qr-image

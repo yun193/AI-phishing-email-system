@@ -1,0 +1,36 @@
+1. [強韌性 - 西里爾混淆] 字元外觀相似但編碼不同 - 測試隨機森林對微小特徵的過濾能力
+Pаypаl Account Security Alert: Click here to verify your identity. (註：a 是西里爾字母)
+
+2. [強韌性 - 關鍵字堆砌] 釣魚郵件中夾雜大量正向詞彙 - 測試模型是否會被大量「Safe」標記誤導
+Subject: Urgent Security Notice - Safe and Secure Access
+Dear user, our safe system has detected a secure login. Please click this secure link to maintain your safety: http://phish-secure-login.com. We prioritize safety and security above everything else. Safe. Secure. Reliable.
+
+3. [強韌性 - 極長內容] 測試系統對超長文本的處理與記憶體限制
+Subject: Monthly Newsletter and Security Update and Project Progress and ... (重複 5000 次)
+Hi, this is a very long email... (省略 10000 字) ... please check your account.
+
+4. [強韌性 - 希臘字母混淆]
+Subject: Gοοgle Account Recovery
+Yοur accοunt needs attentiοn. Visit οur secure site: http://google-support.xyz (註：o 是希臘字母)
+
+5. [強韌性 - 隱形字元] 關鍵字中間夾雜不可見字元 (零寬度字元)
+Subject: C‍o‍n‍f‍i‍r‍m your bank details
+Please login here: http://fake-bank.net (註：Confirm 中間夾雜零寬度字元)
+
+6. [強韌性 - 不同編碼混合] HTML Entity 編碼測試解碼器完整性
+Subject: Your &#97;&#99;&#99;&#111;&#117;&#110;&#116; is locked
+Click here: http://phish-html-entity.org
+
+7. [強韌性 - 多重轉發偽裝] 測試內容特徵是否會被轉發標頭稀釋
+Subject: Fwd: Re: Important Document attached
+From: boss@yourcompany.com (via malicious-sender.net)
+Hi, attached is the file we discussed. Please open it: http://evil-sharepoint.co
+
+8. [強韌性 - 只有標題沒有內文]
+Subject: CRITICAL_SECURITY_ALERT_DO_NOT_IGNORE_PROMPT_ACTION_REQUIRED_NOW
+
+9. [強韌性 - 稀疏特徵] 測試只有短網址且內容極少的情況
+http://bit.ly/suspicious-short-link
+
+10. [強韌性 - 標籤誤導] 故意在批量測試的標籤中標註為 [正常] 但內容為 [釣魚]
+1. [正常] 這是一封釣魚郵件 Click here: http://evil.com/login (測試系統是否受手動標籤影響)
