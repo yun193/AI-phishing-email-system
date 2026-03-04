@@ -12,7 +12,9 @@ models/
 *.h5
 *.csv
 *.xlsx
-data/
+
+# Dataset
+Dataset/
 
 # IDE 相關
 .vscode/

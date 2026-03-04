@@ -1,126 +1,69 @@
-# 🛡️ AI 釣魚郵件偵測系統 - 系統架構文件 (System Architecture)
+# 🛡️ AI 釣魚郵件偵測系統 - 總體系統架構 (Root Architecture)
 
-## 1. 系統概述 (System Overview)
-本系統旨在建立一個能偵測並還原惡意混淆編碼的 AI 釣魚郵件識別系統。核心設計理念為「**防禦優先 (Defense-in-Depth)**」，在將資料送入 AI 語言模型進行分析前，必須先經過嚴格的清洗與強制解碼程序，以應對攻擊者常用的混淆與編碼繞過手法。
+## 1. 系統願景 (System Vision)
+本系統旨在建立一套「防禦優先 (Defense-in-Depth)」的 AI 釣魚郵件識別系統。有鑑於攻擊者常使用各類混淆語法（如 Base64、URL Encoding、隱寫術等）來繞過傳統特徵比對，本系統的核心價值在於**強制將任何黑箱編碼還原為明文**，再交由 AI 語言模型進行語義分析與威脅評估，藉此最大化提升釣魚郵件的攔截率。
 
-本文件作為 AI Agent 或開發者進行後續開發、維護與擴充的權威指導方針。
-
----
-
-## 2. 核心 API 介面定義與調用範例 (API Interfaces & Examples)
-
-為了讓前端、AI 模型與資料處理模組完全解耦並便於互相調用，系統內部定義了以下核心 API 介面，供後續 AI Agent 實作與串接使用。
-
-### 2.1 資料前處理與解碼模組 (`decoder.py`)
-
-- **功能描述**：負責過濾不相關字元、實作惡意特徵提取，並對隱藏的編碼字串進行深度遞迴解碼。
-- **介面名稱**：`process_text(payload: str) -> Tuple[str, List[str]]`
-- **參數**：
-  - `payload` (String)：使用者輸入的原始釣魚郵件或可疑文本。
-- **回傳值**：
-  1. `cleaned_text` (String)：清洗完畢且已把可疑 URL/IP 替換為特徵 Token (`[EVIL_URL]`) 的標準化明文。
-  2. `decode_logs` (List[String])：記錄每一步解碼動作的日誌清單，提供給前端做 UI 可視化與透明度展示。
-
-**✅ 調用範例 (Python)**：
-```python
-from decoder import process_text
-
-# 包含 HTML 以及 Base64 編碼惡意網址的原始 Payload
-raw_email = "Click here to verify: <a href='http://example.com'>http://base64-aHR0cDovL2V2aWwuY29t</a>"
-
-cleaned_text, logs = process_text(raw_email)
-
-print("Cleaned Text:")
-print(cleaned_text)
-# Output: "Click here to verify: [EVIL_URL]"
-
-print("\nLogs:")
-for log in logs:
-    print(log)
-# Output: 
-# [HTML_Removed] Removed tags <a>.
-# [Base64_Decode] Decoded 'aHR0cDovL2V2aWwuY29t' to 'http://evil.com'.
-# [Tokenized] Replaced 'http://evil.com' with '[EVIL_URL]'.
-```
-
-### 2.2 AI 推論模組 (`inference.py`)
-
-- **功能描述**：接收標準化明文，並透過微調後的 Transformer 模型進行語意分析與威脅評估。
-- **介面名稱**：`predict(cleaned_text: str) -> Dict[str, Union[str, float]]`
-- **參數**：
-  - `cleaned_text` (String)：已經過 `decoder.py` 清洗處理後的標準化明文（可能帶有 Token）。
-- **回傳值**：
-  - 回傳 Dict 格式，包含分類結果標籤 (`label`) 與信心機率數值 (`probability`)。
-
-**✅ 調用範例 (Python)**：
-```python
-from inference import predict
-
-# 送入已清理且加入惡意 Token 的字串
-cleaned_input = "Please verify your account immediately at [EVIL_URL] to prevent suspension."
-
-result = predict(cleaned_input)
-
-print(result)
-# Output: {"label": "Phishing", "probability": 0.985}
-```
+此文件為本系統最高層級（High-Level）之架構藍圖，主要規範系統內各子模組的職責邊界與彼此間的溝通機制，後續所有的開發與擴充皆須遵循此架構精神。
 
 ---
 
-## 3. 核心模組規格 (Core Modules Specification)
+## 2. 模組劃分 (Module Division)
 
-### 3.1 前端介面層 (Frontend Interface Layer)
-- **檔案/模組**：`app.py`
-- **技術棧**：Streamlit
-- **輸入 (Input)**：使用者輸入的原始釣魚信件文本 (Raw Text)。
-- **輸出 (Output)**：UI 渲染 (包含預測結果、信心機率、解碼對比日誌)。
-- **職責與實作要求**：
-  1. **輸入攔截與安全限制**：限制最大字元長度（例如 5000 字元），防止 DoS 攻擊。
-  2. **模組橋接**：調用 `decoder.py` 與 `inference.py`，作為系統的 Controller。
-  3. **解碼可視化**：接收解碼器的執行日誌，在 UI 上並列顯示「原始文本」與「解碼後明文」，提升透明度。
+為了確保系統的高內聚與低耦合，整體架構被劃分為以下四個獨立且各自專注的核心模組：
 
-### 3.2 資料前處理與邏輯解碼層 (Data Processing & Decoding Layer)
-- **檔案/模組**：`decoder.py`
-- **技術棧**：Python 內建函式庫 (`re`, `base64`, `urllib.parse`)
-- **輸入 (Input)**：原始釣魚信件文本 (Raw Text)。
-- **輸出 (Output)**：
-  1. 乾淨且標準化、帶有特徵 Token 的明文 (Cleaned Text)。
-  2. 解碼過程的詳細日誌 (Decoding Log)。
-- **職責與實作要求**：
-  1. **基礎清洗**：移除 HTML 標籤 (`<...>`)、腳本代碼與多餘的空白字元。
-  2. **遞迴解碼 (Recursive Decoding)**：實作偵測 Base64 與 URL Encoding 的邏輯。若解碼後的字串仍包含編碼特徵，需持續深度解碼，直到字串不再變化為止。
-  3. **惡意特徵提取 (Tokenization)**：基於 Regex，將可疑的 IP 網址或異常長度的網域名稱，強制替換為模型易於識別的專屬 Token（例如 `[EVIL_URL]`, `[SUSPICIOUS_IP]`）。
+### 2.1 系統控制器與人機介面 (Frontend / Controller - `app.py`)
+*   **角色定位**：系統的唯一對外入口與中央協調者。
+*   **主要職責**：
+    *   負責接收使用者（或外部系統）傳入的原始信件內容。
+    *   為防範 DoS 攻擊，實作基本長度限制等輸入過濾防護。
+    *   做為流程大腦，依序呼叫解碼模組與推論模組，並不負責任何核心邏輯運算。
+    *   將解碼日誌與 AI 判斷結果彙整後，呈現（或回傳）給使用者。
 
-### 3.3 AI 推論層 (AI Inference Layer)
-- **檔案/模組**：`inference.py`
-- **技術棧**：Hugging Face `transformers`, `torch`
-- **輸入 (Input)**：來自 `decoder.py` 處理完的乾淨明文 (Cleaned Text)。
-- **輸出 (Output)**：分類標籤 (如 `Phishing`, `Safe`) 與信心機率 (Probability)。
-- **職責與實作要求**：
-  1. **模型載入與封裝**：載入微調後的語言模型（如基於 `distilbert-base-uncased` 微調的版本），並封裝為單一介面 `predict(text)` 供前端呼叫。
-  2. **語意分析**：針對輸入文本的上下文與特殊的惡意 Token 進行推論。
-  3. **效能要求**：推論過程需輕量化，確保在 CPU 環境（無 GPU）下也能提供秒級回應。
+### 2.2 預處理與深度解碼引擎 (Decoding Engine - `decoder.py`)
+*   **角色定位**：系統的第一道防線（清洗與特徵標準化）。
+*   **主要職責**：
+    *   **清洗淨化**：移除不具語意參考價值的元素（如 HTML 標籤、Script 標籤）。
+    *   **遞迴解碼**：針對偵測到的編碼（Base64、URL Encoding等）進行層層遞迴解壓縮，直到字串完全失去編碼特徵。
+    *   **惡意特徵替換 (Tokenization)**：主動偵測出內藏的網址或異常 IP，強制將其轉換為特殊的佔位符（如 `[EVIL_URL]`），一方面防止 AI 模型被雜亂連結干擾，另一方面凸顯這是一個帶有外部連結的危險特徵。
 
-### 3.4 模型訓練與測試驗證層 (Training & Red Teaming Layer)
-- **檔案/模組**：`train.py`, `test_payloads.txt`, `Adversarial_Testing_Report.md`
-- **職責與實作要求**：
-  1. **離線訓練 (`train.py`)**：使用清洗並遞迴解碼過的 Kaggle 資料集（如 Enron）對基礎模型進行 Fine-Tuning。需產出 F1-Score, Precision, Recall 及 False Positive Rate (FPR) 評估報告。
-  2. **AI 紅隊演練 (Red Teaming)**：建構進階對抗樣本（同形異義字、零寬度字元、干擾詞稀釋）對 Inference 引擎進行壓力測試，並記錄繞過成功的 Payload 以作為下一代模型改進依據。
+### 2.3 AI 推論引擎 (Inference Engine - `inference.py`)
+*   **角色定位**：大腦決策層，負責判定其是否為釣魚郵件。
+*   **主要職責**：
+    *   載入並駐留已訓練完成的離線機器學習模型（包含 TF-IDF 特徵萃取與隨機森林分類器）。
+    *   接收由解碼引擎處理過後的純文字檔案。
+    *   利用模型賦予這段文字各類別的信心機率（Probability Score），並產出最終的判決標籤（如 `Phishing` 或是 `Safe`）。
+
+### 2.4 離線訓練管線 (Training Pipeline - `train.py`)
+*   **角色定位**：模型的孵化器。這是一個不在線上服務路徑中執行的獨立營運腳本。
+*   **主要職責**：
+    *   自動讀取、切分（訓練 / 驗證）歷史的已標籤資料集。
+    *   建立機器學習管線（Pipeline），負責訓練 TF-IDF 與分類器演算法。
+    *   執行成效驗證（計算 F1-Score, False Positive Rate 等），並產出混淆矩陣圖表供資料科學家確認正常郵件不被過度誤判。
+    *   打包可放上線上環境的輕量化模型檔案。
 
 ---
 
-## 4. 資料流向細節 (Data Flow Breakdown)
-1. 用戶於 Streamlit 送出 Payload。
-2. `app.py` 進行長度校驗 `if len(payload) > 5000: return Error`。
-3. `app.py` 呼叫 `decoder.py -> process_text(payload)`。
-4. `decoder.py` 執行 `remove_html()` -> `recursive_decode()` -> `tokenize_malicious_links()`，並回傳 `(cleaned_text, decode_logs)` 給 `app.py`。
-5. `app.py` 呼叫 `inference.py -> predict(cleaned_text)`。
-6. `inference.py` 回傳 `{"label": "Phishing", "probability": 0.98}`。
-7. `app.py` 渲染結果區塊（顯示 0.98 Phishing）與日誌區塊（顯示 decode_logs）。
+## 3. 模組溝通機制 (Communication Mechanisms)
 
----
+模組之間的溝通嚴守「同步函數呼叫 (Synchronous Function Calls)」與「明確回傳介面」的輕量化原則，確保部署簡單且具有高度可測試性。以下為線上推論期間的標準資料傳遞流程：
 
-## 5. 開發與部署規範 (Development & Deployment Rules)
-1. **解耦架構**：`decoder.py` 獨立於 `inference.py`。即使模型判斷失誤（假陰性），解碼日誌仍須忠實呈現被隱藏的惡意網址供人工驗證。
-2. **模型權重管理**：大型模型權重檔 (`.bin`, `.safetensors`) **嚴禁**提交至 Git，必須使用 Git LFS 管理，或存放在外部空間。
-3. **防禦優先原則**：任何進來的字串皆須被視為「惡意構造」，不可信任任何外部輸入的格式與長度。
+1.  **使用者 -> 介面控制器 (`app.py`)**：
+    *   **觸發機制**：前端表單送出 (Submit)。
+    *   **傳遞內容**：夾帶原始惡意語法與混淆語句的 **原始字串 (Raw Text)**。
+
+2.  **介面控制器 -> 解碼引擎 (`decoder.py`)**：
+    *   **觸發機制**：系統內部同步函數呼叫。
+    *   **傳遞內容**：送入初步檢查過後的 **原始字串 (Raw Text)**。
+    *   **回傳介面**：解碼引擎完工後，回傳格式為一個 Tuple `(Cleaned Text, Decode Logs)`。其中包含已拔除武裝並置換 Token 的標準化明文，以及一份紀錄解碼過程的動作清單日誌。
+
+3.  **介面控制器 -> 推論引擎 (`inference.py`)**：
+    *   **觸發機制**：系統內部同步函數呼叫。
+    *   **傳遞內容**：介面控制器僅將剛剛拿到的 **標準化明文 (Cleaned Text)** 繼續往下送，丟棄日誌（日誌留著給前台顯示）。
+    *   **回傳介面**：推論模組演算完畢後，回傳一個標準的 JSON Dictionary 結構 `{"label": <預測結果>, "probability": <信心機率>}`。
+
+4.  **介面控制器 -> 使用者**：
+    *   **觸發機制**：前端 UI 更新與渲染。
+    *   **傳遞內容**：介面控制器將推論得到的 `label` 與 `probability`，結合步驟 2 拿到的 `Decode Logs`，一併呈現在雷達圖或分析報告板塊上，提供極具透明度 (Transparency) 的資安判斷依據。
+
+### * 補充：離線與線上環境的溝通橋樑
+*   `train.py`（離線端）與 `inference.py`（線上端）互不依賴原始碼層級的呼叫，兩者僅透過實體檔案系統 (File System) 進行解耦溝通。訓練腳本將 Pipeline 打包匯出為 `model.pkl`，而推論模組在初次啟動時，會從硬碟上將該檔案載入至自己的記憶體中駐留。
